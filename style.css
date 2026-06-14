@@ -1,4 +1,4 @@
-/* Sleek, Premium Cyber-Arcade Interface Styling */
+/* Premium Cyber-Arcade Interface Styling */
 body {
     background-color: #0b0c10;
     display: flex;
@@ -48,9 +48,9 @@ body {
 .badge-mine { background-color: #ff4757; color: white; }
 .badge-build { background-color: #2ed573; color: white; }
 
-#save-status {
-    color: #2ed573;
-    animation: pulse 2s infinite;
+#time-display {
+    color: #ffb300;
+    font-weight: bold;
 }
 
 #canvas-wrapper {
@@ -65,7 +65,7 @@ body {
 
 #sandboxCanvas {
     display: block;
-    background: linear-gradient(to bottom, #1f4068 0%, #162447 60%, #1a1a2e 100%);
+    background-color: #1f4068;
 }
 
 /* 🎒 FLOATING INVENTORY HOTBAR SYSTEM */
@@ -80,14 +80,14 @@ body {
     border-radius: 14px;
     display: flex;
     padding: 6px;
-    gap: 6px;
+    gap: 4px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     z-index: 100;
 }
 
 .slot {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -96,7 +96,7 @@ body {
     cursor: pointer;
     border: 2px solid transparent;
     transition: transform 0.1s, border-color 0.2s;
-    font-size: 18px;
+    font-size: 16px;
     position: relative;
 }
 
@@ -111,11 +111,11 @@ body {
 }
 
 .slot-lbl {
-    font-size: 8px;
+    font-size: 7px;
     color: #ffffff;
     font-weight: bold;
     position: absolute;
-    bottom: 2px;
+    bottom: 1px;
     text-shadow: 1px 1px 2px black;
 }
 
@@ -126,10 +126,5 @@ body {
     margin-top: 12px;
     line-height: 1.5;
     opacity: 0.7;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
+    max-width: 360px;
 }
