@@ -1,46 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Craft Bound: Infinite Sandbox</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Craft Bound v2</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-    <div class="hud">
-        <div class="hud-box">
-            <span class="hud-label">CURRENT MODE</span>
-            <span id="mode-display" class="mode-badge badge-mine">⛏️ MINING</span>
-        </div>
-        <div class="hud-box" style="text-align: center;">
-            <span class="hud-label">WORLD TIME</span>
-            <span id="time-display">☀️ DAY</span>
-        </div>
-        <div class="hud-box" style="text-align: right;">
-            <span class="hud-label">BLOCKS MINED</span>
-            <span id="stats-mined">0</span>
-        </div>
-    </div>
-
-    <div id="canvas-wrapper">
-        <canvas id="sandboxCanvas" width="360" height="540"></canvas>
-        
-        <div class="inventory-hotbar">
-            <div class="slot active-slot" data-block="1" style="background-color: #795548;">🟫<span class="slot-lbl">Dirt</span></div>
-            <div class="slot" data-block="2" style="background-color: #4caf50;">🟩<span class="slot-lbl">Grass</span></div>
-            <div class="slot" data-block="3" style="background-color: #757575;">🪨<span class="slot-lbl">Stone</span></div>
-            <div class="slot" data-block="4" style="background-color: #ffb300;">🪙<span class="slot-lbl">Gold</span></div>
-            <div class="slot" data-block="5" style="background-color: #00e5ff;">💎<span class="slot-lbl">Gem</span></div>
-            <div class="slot" data-block="6" style="background-color: #ff3d00;">🧨<span class="slot-lbl">TNT</span></div>
-        </div>
-    </div>
-
-    <p class="controls-hint">
-        <b>Desktop:</b> Click to Interact. Hold <b>A / D</b> or <b>Left/Right Arrows</b> to Scroll Camera.<br>
-        Press <b>SPACEBAR</b> to switch Mine/Build.
-    </p>
-
-    <script src="game.js"></script>
+  <h1>CRAFT <span>BOUND</span></h1>
+  <div id="gameWrapper">
+    <canvas id="cb" width="960" height="560"></canvas>
+    <div id="score-flash"></div>
+  </div>
+  <div id="toolbar">
+    <span>BUILD:</span>
+  </div>
+  <div id="controls">
+    <span><b>A / D</b> or <b>← →</b> scroll</span>
+    <span><b>Space</b> mine / build</span>
+    <span><b>1–7</b> select block</span>
+    <span><b>Click</b> action</span>
+    <span><b>M</b> music on/off</span>
+  </div>
+  <script src="game.js"></script>
 </body>
 </html>
