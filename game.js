@@ -1,3 +1,9 @@
+// ⚡ FIX: Automatically clear old broken map memory so the game loads instantly
+if (!localStorage.getItem("craftBoundVersion3")) {
+    localStorage.clear();
+    localStorage.setItem("craftBoundVersion3", "true");
+}
+
 const canvas = document.getElementById("sandboxCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -41,34 +47,41 @@ function initWorldMap() {
     const savedMap = localStorage.getItem("craftBoundWorldGridV2");
     
     if (savedMap) {
-        worldGrid = JSON.parse(savedMap);
-    } else {
-        for (let r = 0; r < rows; r++) {
-            worldGrid[r] = [];
-            let heightOffset = 0;
-
-            for (let c = 0; c < worldCols; c++) {
-                // Procedural rolling hills equation curves
-                if (c % 6 === 0) heightOffset = Math.floor(Math.sin(c * 0.15) * 2);
-                let surfaceRow = 8 + heightOffset;
-                
-                let blockType = 0; 
-                if (r === surfaceRow) {
-                    blockType = 2; // Surface Grass
-                } else if (r > surfaceRow && r < surfaceRow + 4) {
-                    blockType = Math.random() > 0.2 ? 1 : 3; // Dirt & Stone mix
-                } else if (r >= surfaceRow + 4) {
-                    let rand = Math.random();
-                    if (rand > 0.96) blockType = 5;      // Gem
-                    else if (rand > 0.90) blockType = 4; // Gold
-                    else if (rand > 0.88) blockType = 6; // Natural wild TNT veins
-                    else blockType = 3;                  // Stone
-                }
-                worldGrid[r][c] = blockType;
-            }
+        try {
+            worldGrid = JSON.parse(savedMap);
+        } catch(e) {
+            generateNewWorld();
         }
-        saveWorldToCache();
+    } else {
+        generateNewWorld();
     }
+}
+
+function generateNewWorld() {
+    for (let r = 0; r < rows; r++) {
+        worldGrid[r] = [];
+        let heightOffset = 0;
+
+        for (let c = 0; c < worldCols; c++) {
+            if (c % 6 === 0) heightOffset = Math.floor(Math.sin(c * 0.15) * 2);
+            let surfaceRow = 8 + heightOffset;
+            
+            let blockType = 0; 
+            if (r === surfaceRow) {
+                blockType = 2; // Surface Grass
+            } else if (r > surfaceRow && r < surfaceRow + 4) {
+                blockType = Math.random() > 0.2 ? 1 : 3; 
+            } else if (r >= surfaceRow + 4) {
+                let rand = Math.random();
+                if (rand > 0.96) blockType = 5;      
+                else if (rand > 0.90) blockType = 4; 
+                else if (rand > 0.88) blockType = 6; 
+                else blockType = 3;                  
+            }
+            worldGrid[r][c] = blockType;
+        }
+    }
+    saveWorldToCache();
 }
 
 function saveWorldToCache() {
@@ -80,14 +93,13 @@ function saveWorldToCache() {
 // 💥 TNT EXPLO ENGINE PHYSICS MODULE
 // ==========================================
 function triggerExplosion(startRow, startCol) {
-    let targetRadius = 2; // Destroys blocks within a 5x5 area
+    let targetRadius = 2; 
     
     for (let r = startRow - targetRadius; r <= startRow + targetRadius; r++) {
         for (let c = startCol - targetRadius; c <= startCol + targetRadius; c++) {
             if (r >= 0 && r < rows && c >= 0 && c < worldCols) {
                 let typeId = worldGrid[r][c];
                 if (typeId !== 0) {
-                    // Spawn exploding debris particle mechanics
                     for (let p = 0; p < 3; p++) {
                         particles.push({
                             x: c * tileSize + tileSize/2,
@@ -98,7 +110,7 @@ function triggerExplosion(startRow, startCol) {
                             color: blockProfiles[typeId].color
                         });
                     }
-                    worldGrid[r][c] = 0; // Wipe into air
+                    worldGrid[r][c] = 0; 
                     blocksMinedCount++;
                 }
             }
@@ -112,37 +124,38 @@ function triggerExplosion(startRow, startCol) {
 // 🎨 ENGINE RUNTIME ENVIRONMENT RENDERING
 // ==========================================
 function renderLoop() {
-    // 1. Process Smooth Camera Scroll Inputs
+    // Process Smooth Camera Scroll Inputs
     if (keysPressed['KeyD'] || keysPressed['ArrowRight']) cameraX += 5;
     if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) cameraX -= 5;
     
-    // Lock camera boundaries safely to map constraints
     if (cameraX < 0) cameraX = 0;
     if (cameraX > (worldCols * tileSize) - canvas.width) cameraX = (worldCols * tileSize) - canvas.width;
 
-    // 2. Compute Day / Night Time Sky Cycles Color Grading Filters
     timeTicks++;
-    if (timeTicks % 900 === 0) { // Cycle updates every 15 seconds
+    if (timeTicks % 900 === 0) { 
         isNight = !isNight;
         let timeBadge = document.getElementById("time-display");
-        timeBadge.innerText = isNight ? "🌙 NIGHT" : "☀️ DAY";
-        timeBadge.style.color = isNight ? "#81b214" : "#ffb300";
+        if(timeBadge) {
+            timeBadge.innerText = isNight ? "🌙 NIGHT" : "☀️ DAY";
+            timeBadge.style.color = isNight ? "#81b214" : "#ffb300";
+        }
     }
     
     ctx.fillStyle = isNight ? "#0f172a" : "#1f4068";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
-    ctx.translate(-cameraX, 0); // Translate render space according to camera offsets
+    ctx.translate(-cameraX, 0); 
 
-    // 3. Render Grid Tiles
-    timeTicks++;
+    // Render Grid Tiles
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < worldCols; c++) {
             let typeId = worldGrid[r][c];
-            if (typeId === 0) continue; 
+            if (typeId === undefined || typeId === 0) continue; 
 
             let profile = blockProfiles[typeId];
+            if (!profile) continue;
+
             ctx.fillStyle = profile.color;
             ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
 
@@ -151,7 +164,6 @@ function renderLoop() {
                 ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
             }
             
-            // Render text markings inside TNT tiles
             if (profile.tnt) {
                 ctx.fillStyle = "#ffffff";
                 ctx.font = "bold 9px sans-serif";
@@ -164,7 +176,7 @@ function renderLoop() {
         }
     }
 
-    // 4. Update Particle Simulation Layer
+    // Update Particle Simulation Layer
     for (let i = particles.length - 1; i >= 0; i--) {
         let p = particles[i];
         p.x += p.vx; p.y += p.vy; p.life--;
@@ -182,7 +194,7 @@ function renderLoop() {
 // ==========================================
 function handleActionClick(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
-    const tapX = clientX - rect.left + cameraX; // Map calculation tracks viewport offset adjustments
+    const tapX = clientX - rect.left + cameraX; 
     const tapY = clientY - rect.top;
 
     const targetCol = Math.floor(tapX / tileSize);
@@ -192,8 +204,8 @@ function handleActionClick(clientX, clientY) {
 
     if (currentInteractionMode === "MINE") {
         let blockAtTarget = worldGrid[targetRow][targetCol];
-        if (blockAtTarget !== 0) {
-            if (blockProfiles[blockAtTarget].tnt) {
+        if (blockAtTarget !== 0 && blockAtTarget !== undefined) {
+            if (blockProfiles[blockAtTarget] && blockProfiles[blockAtTarget].tnt) {
                 triggerExplosion(targetRow, targetCol);
             } else {
                 worldGrid[targetRow][targetCol] = 0; 
@@ -205,7 +217,7 @@ function handleActionClick(clientX, clientY) {
     } 
     else if (currentInteractionMode === "BUILD") {
         let blockAtTarget = worldGrid[targetRow][targetCol];
-        if (blockAtTarget === 0) { 
+        if (blockAtTarget === 0 || blockAtTarget === undefined) { 
             worldGrid[targetRow][targetCol] = selectedBlockType; 
             saveWorldToCache();
         }
